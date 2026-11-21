@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="오늘의 말씀" />
+  <title>오늘의 신약 한 구절</title>
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%2311151C'/%3E%3Ctext x='90' y='112' font-size='72' text-anchor='middle' fill='%23D6B87C'%3E%E2%9C%9D%3C/text%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #0f131a;
+      --card: #181f2c;
+      --text: #f4f1ea;
+      --muted: #98a4b8;
+      --accent: #d6b87c;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+    body.light {
+      --bg: #f6f4ef;
+      --card: #ffffff;
+      --text: #1c1e22;
+      --muted: #6c7480;
+      --accent: #9c742b;
+      --border: rgba(0, 0, 0, 0.08);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      display: flex;
+      flex-direction: column;
+      padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 24px);
+      transition: background 0.25s, color 0.25s;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 4px 20px;
+    }
+    .brand { font-size: 14px; font-weight: 600; color: var(--accent); letter-spacing: 0.04em; }
+    .theme-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 32px 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22);
+    }
+    .date-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .verse-text {
+      font-family: "Noto Serif KR", Georgia, serif;
+      font-size: 23px;
+      line-height: 1.68;
+      font-weight: 500;
+      margin: 0 0 24px;
+      word-break: keep-all;
+    }
+    .verse-ref {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .progress-wrap {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .bar {
+      height: 5px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    button.ctrl {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    button.ctrl:active { opacity: 0.7; }
+    .memo-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px 16px;
+    }
+    .memo-box label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 76px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      resize: none;
+      outline: none;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">📖 오늘의 신약 한 구절</div>
+    <button class="theme-btn" id="themeBtn">라이트 모드</button>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="date-row">
+        <span id="dateLabel">2026.11.21</span>
+        <span id="dayBadge">Day 1</span>
+      </div>
+      <p class="verse-text" id="verseText"></p>
+      <div class="verse-ref" id="verseRef"></div>
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span>신약 통독 진행률</span>
+          <span id="progressText">1 / 7,957절</span>
+        </div>
+        <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+      </div>
+    </section>
+
+    <div class="controls">
+      <button class="ctrl" id="prevBtn">← 이전</button>
+      <button class="ctrl" id="copyBtn">구절 복사</button>
+      <button class="ctrl" id="nextBtn">다음 →</button>
+    </div>
+
+    <div class="memo-box">
+      <label for="memoInput">오늘의 묵상 메모 (자동 저장)</label>
+      <textarea id="memoInput" placeholder="오늘 말씀에서 마음에 남는 부분을 적어보세요..."></textarea>
+    </div>
+  </main>
+
+  <script>
+    const START_DATE = new Date("2026-11-21T00:00:00+09:00");
+    const VERSES = [
+      { ref: "마태복음 1:1", text: "아브라함과 다윗의 자손 예수 그리스도의 계보라" },
+      { ref: "마태복음 1:2", text: "아브라함이 이삭을 낳고 이삭은 야곱을 낳고 야곱은 유다와 그의 형제들을 낳고" },
+      { ref: "마태복음 1:3", text: "유다는 다말에게서 베레스와 세라를 낳고 베레스는 헤스론을 낳고 헤스론은 람을 낳고" },
+      { ref: "마태복음 1:4", text: "람은 아미나답을 낳고 아미나답은 나손을 낳고 나손은 살몬을 낳고" },
+      { ref: "마태복음 1:5", text: "살몬은 라합에게서 보아스를 낳고 보아스는 룻에게서 오벳을 낳고 오벳은 이새를 낳고" },
+      { ref: "마태복음 1:6", text: "이새는 다윗 왕을 낳으니라 다윗은 우리야의 아내에게서 솔로몬을 낳고" },
+      { ref: "마태복음 1:7", text: "솔로몬은 르호보암을 낳고 르호보암은 아비야를 낳고 아비야는 아사를 낳고" },
+      { ref: "마태복음 1:8", text: "아사는 여호사밧을 낳고 여호사밧은 요람을 낳고 요람은 웃시야를 낳고" },
+      { ref: "마태복음 1:9", text: "웃시야는 요담을 낳고 요담은 아하스를 낳고 아하스는 히스기야를 낳고" },
+      { ref: "마태복음 1:10", text: "히스기야는 므낫세를 낳고 므낫세는 아몬을 낳고 아몬은 요시야를 낳고" },
+      { ref: "마태복음 1:11", text: "바벨론으로 사로잡혀 갈 때에 요시야는 여고냐와 그의 형제들을 낳으니라" },
+      { ref: "마태복음 1:12", text: "바벨론으로 사로잡혀 간 후에 여고냐는 스알디엘을 낳고 스알디엘은 스룹바벨을 낳고" },
+      { ref: "마태복음 1:13", text: "스룹바벨은 아비훗을 낳고 아비훗은 엘리아김을 낳고 엘리아김은 아소르를 낳고" },
+      { ref: "마태복음 1:14", text: "아소르는 사독을 낳고 사독은 아킴을 낳고 아킴은 엘리웃을 낳고" },
+      { ref: "마태복음 1:15", text: "엘리웃은 엘르아살을 낳고 엘르아살은 맛단을 낳고 맛단은 야곱을 낳고" },
+      { ref: "마태복음 1:16", text: "야곱은 마리아의 남편 요셉을 낳았으니 마리아에게서 그리스도라 칭하는 예수가 나시니라" },
+      { ref: "마태복음 1:17", text: "그런즉 모든 대 수가 아브라함부터 다윗까지 열네 대요 다윗부터 바벨론으로 사로잡혀 갈 때까지 열네 대요 바벨론으로 사로잡혀 간 후부터 그리스도까지 열네 대더라" },
+      { ref: "마태복음 1:18", text: "예수 그리스도의 나심은 이러하니라 그의 어머니 마리아가 요셉과 약혼하고 동거하기 전에 성령으로 잉태된 것이 나타났더니" },
+      { ref: "마태복음 1:19", text: "그의 남편 요셉은 의로운 사람이라 그를 드러내지 아니하고 가만히 끊고자 하여" },
+      { ref: "마태복음 1:20", text: "이 일을 생각할 때에 주의 사자가 현몽하여 이르되 다윗의 자손 요셉아 네 아내 마리아 데려오기를 무서워하지 말라 그에게 잉태된 자는 성령으로 된 것이라" },
+      { ref: "마태복음 1:21", text: "아들을 낳으리니 이름을 예수라 하라 이는 그가 자기 백성을 그들의 죄에서 구원할 자이심이라 하니라" },
+      { ref: "마태복음 1:22", text: "이 모든 일이 된 것은 주께서 선지자로 하신 말씀을 이루려 하심이니 이르시되" },
+      { ref: "마태복음 1:23", text: "보라 처녀가 잉태하여 아들을 낳을 것이요 그의 이름은 임마누엘이라 하리라 하셨으니 이를 번역한즉 하나님이 우리와 함께 계시다 함이라" },
+      { ref: "마태복음 1:24", text: "요셉이 잠에서 깨어 일어나 주의 사자의 분부대로 행하여 그의 아내를 데려왔으나" },
+      { ref: "마태복음 1:25", text: "아들을 낳기까지 동침하지 아니하더니 낳으매 이름을 예수라 하니라" }
+    ];
+
+    const today = new Date();
+    const diffDays = Math.max(0, Math.floor((today - START_DATE) / 86400000));
+    let currentIndex = Math.min(diffDays, VERSES.length - 1);
+
+    const verseText = document.getElementById("verseText");
+    const verseRef = document.getElementById("verseRef");
+    const dateLabel = document.getElementById("dateLabel");
+    const dayBadge = document.getElementById("dayBadge");
+    const progressText = document.getElementById("progressText");
+    const barFill = document.getElementById("barFill");
+    const memoInput = document.getElementById("memoInput");
+    const themeBtn = document.getElementById("themeBtn");
+
+    function render() {
+      const v = VERSES[currentIndex];
+      const d = new Date(START_DATE.getTime() + currentIndex * 86400000);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+
+      verseText.textContent = `“${v.text}”`;
+      verseRef.textContent = `${v.ref} (개역개정)`;
+      dateLabel.textContent = `${yyyy}.${mm}.${dd}`;
+      dayBadge.textContent = `Day ${currentIndex + 1}`;
+      progressText.textContent = `${currentIndex + 1} / 7,957절`;
+      barFill.style.width = `${Math.max(1.5, ((currentIndex + 1) / 7957) * 100)}%`;
+
+      try {
+        memoInput.value = localStorage.getItem(`verse_memo_${currentIndex}`) || "";
+      } catch (e) {
+        memoInput.value = "";
+      }
+    }
+
+    document.getElementById("prevBtn").onclick = () => {
+      if (currentIndex > 0) { currentIndex--; render(); }
+    };
+    document.getElementById("nextBtn").onclick = () => {
+      if (currentIndex < VERSES.length - 1) { currentIndex++; render(); }
+    };
+    document.getElementById("copyBtn").onclick = async () => {
+      const v = VERSES[currentIndex];
+      const textToCopy = `${v.text} (${v.ref})`;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(textToCopy);
+        } else {
+          const ta = document.createElement("textarea");
+          ta.value = textToCopy;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+        }
+        const btn = document.getElementById("copyBtn");
+        btn.textContent = "복사됨 ✓";
+        setTimeout(() => (btn.textContent = "구절 복사"), 1200);
+      } catch (e) {
+        alert(textToCopy);
+      }
+    };
+    memoInput.oninput = () => {
+      try {
+        localStorage.setItem(`verse_memo_${currentIndex}`, memoInput.value);
+      } catch (e) {}
+    };
+    themeBtn.onclick = () => {
+      document.body.classList.toggle("light");
+      themeBtn.textContent = document.body.classList.contains("light") ? "다크 모드" : "라이트 모드";
+    };
+
+    render();
+  </script>
+</body>
+</html>
