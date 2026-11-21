@@ -137,6 +137,49 @@
       border-radius: 18px;
       padding: 14px 16px;
     }
+    .search-wrap {
+      position: relative;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+    }
+    .search-input::placeholder { color: var(--muted); }
+    .search-results {
+      margin-top: 8px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      max-height: 240px;
+      overflow-y: auto;
+      display: none;
+    }
+    .search-results.open { display: block; }
+    .search-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .search-item:last-child { border-bottom: none; }
+    .search-item:active { opacity: 0.7; }
+    .search-item-ref { font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 4px; }
+    .search-item-txt { font-size: 13px; color: var(--text); line-height: 1.45; }
+    .search-ext {
+      display: block;
+      text-align: center;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
     .memo-box label {
       display: block;
       font-size: 12px;
@@ -164,6 +207,11 @@
   </header>
 
   <main>
+    <div class="search-wrap">
+      <input type="search" class="search-input" id="searchInput" placeholder="🔍 구절·키워드 검색 (예: 예수, 임마누엘, 사랑, 1:21)" />
+      <div class="search-results" id="searchResults"></div>
+    </div>
+
     <section class="card">
       <div class="date-row">
         <span id="dateLabel">2026.11.21</span>
@@ -222,9 +270,28 @@
       { ref: "마태복음 1:25", text: "아들을 낳기까지 동침하지 아니하더니 낳으매 이름을 예수라 하니라" }
     ];
 
+    const POPULAR_VERSES = [
+      { ref: "마태복음 5:3", text: "심령이 가난한 자는 복이 있나니 천국이 그들의 것임이요" },
+      { ref: "마태복음 6:33", text: "그런즉 너희는 먼저 그의 나라와 그의 의를 구하라 그리하면 이 모든 것을 너희에게 더하시리라" },
+      { ref: "마태복음 7:7", text: "구하라 그리하면 너희에게 주실 것이요 찾으라 그리하면 찾아낼 것이요 문을 두드리라 그리하면 너희에게 열릴 것이니" },
+      { ref: "마태복음 11:28", text: "수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라" },
+      { ref: "요한복음 3:16", text: "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 그를 믿는 자마다 멸망하지 않고 영생을 얻게 하려 하심이라" },
+      { ref: "요한복음 14:27", text: "평안을 너희에게 끼치노니 곧 나의 평안을 너희에게 주노라 내가 너희에게 주는 것은 세상이 주는 것과 같지 아니하니라 너희는 마음에 근심하지도 말고 두려워하지도 말라" },
+      { ref: "로마서 8:28", text: "우리가 알거니와 하나님을 사랑하는 자 곧 그의 뜻대로 부르심을 입은 자들에게는 모든 것이 합력하여 선을 이루느니라" },
+      { ref: "고린도전서 13:4", text: "사랑은 오래 참고 사랑은 온유하며 시기하지 아니하며 사랑은 자랑하지 아니하며 교만하지 아니하며" },
+      { ref: "고린도전서 13:13", text: "그런즉 믿음, 소망, 사랑, 이 세 가지는 항상 있을 것인데 그 중의 제일은 사랑이라" },
+      { ref: "갈라디아서 5:22", text: "오직 성령의 열매는 사랑과 희락과 화평과 오래 참음과 자비와 양선과 충성과" },
+      { ref: "빌립보서 4:6-7", text: "아무 것도 염려하지 말고 다만 모든 일에 기도와 간구로, 너희 구할 것을 감사함으로 하나님께 아뢰라 그리하면 모든 지각에 뛰어난 하나님의 평강이 그리스도 예수 안에서 너희 마음과 생각을 지키시리라" },
+      { ref: "빌립보서 4:13", text: "내게 능력 주시는 자 안에서 내가 모든 것을 할 수 있느니라" },
+      { ref: "데살로니가전서 5:16-18", text: "항상 기뻐하라 쉬지 말고 기도하라 범사에 감사하라 이것이 그리스도 예수 안에서 너희를 향하신 하나님의 뜻이니라" },
+      { ref: "히브리서 11:1", text: "믿음은 바라는 것들의 실상이요 보이지 않는 것들의 증거니" },
+      { ref: "야고보서 1:5", text: "너희 중에 누구든지 지혜가 부족하거든 모든 사람에게 후히 주시고 꾸짖지 아니하시는 하나님께 구하라 그리하면 주시리라" }
+    ];
+
     const today = new Date();
     const diffDays = Math.max(0, Math.floor((today - START_DATE) / 86400000));
     let currentIndex = Math.min(diffDays, VERSES.length - 1);
+    let customVerse = null;
 
     const verseText = document.getElementById("verseText");
     const verseRef = document.getElementById("verseRef");
@@ -234,9 +301,11 @@
     const barFill = document.getElementById("barFill");
     const memoInput = document.getElementById("memoInput");
     const themeBtn = document.getElementById("themeBtn");
+    const searchInput = document.getElementById("searchInput");
+    const searchResults = document.getElementById("searchResults");
 
     function render() {
-      const v = VERSES[currentIndex];
+      const v = customVerse || VERSES[currentIndex];
       const d = new Date(START_DATE.getTime() + currentIndex * 86400000);
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -244,26 +313,74 @@
 
       verseText.textContent = `“${v.text}”`;
       verseRef.textContent = `${v.ref} (개역개정)`;
-      dateLabel.textContent = `${yyyy}.${mm}.${dd}`;
-      dayBadge.textContent = `Day ${currentIndex + 1}`;
+      dateLabel.textContent = customVerse ? "검색 결과" : `${yyyy}.${mm}.${dd}`;
+      dayBadge.textContent = customVerse ? "바로 보기" : `Day ${currentIndex + 1}`;
       progressText.textContent = `${currentIndex + 1} / 7,957절`;
       barFill.style.width = `${Math.max(1.5, ((currentIndex + 1) / 7957) * 100)}%`;
 
+      const memoKey = customVerse ? `verse_memo_ref_${v.ref}` : `verse_memo_${currentIndex}`;
       try {
-        memoInput.value = localStorage.getItem(`verse_memo_${currentIndex}`) || "";
+        memoInput.value = localStorage.getItem(memoKey) || "";
       } catch (e) {
         memoInput.value = "";
       }
     }
 
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.trim();
+      if (!q) {
+        searchResults.classList.remove("open");
+        searchResults.innerHTML = "";
+        return;
+      }
+      const ql = q.toLowerCase();
+      const all = [
+        ...VERSES.map((v, idx) => ({ ...v, idx })),
+        ...POPULAR_VERSES.map((v) => ({ ...v, idx: -1 }))
+      ];
+      const hits = all.filter((v) => v.ref.toLowerCase().includes(ql) || v.text.toLowerCase().includes(ql)).slice(0, 12);
+
+      let html = hits.map((h, i) => `
+        <div class="search-item" data-hit="${i}">
+          <div class="search-item-ref">${h.ref}</div>
+          <div class="search-item-txt">${h.text}</div>
+        </div>
+      `).join("");
+
+      const extUrl = `https://www.bskorea.or.kr/bible/korbibReadpage.php?version=GAE&search=${encodeURIComponent(q)}`;
+      html += `<a class="search-ext" href="${extUrl}" target="_blank" rel="noopener">대한성서공회에서 “${q}” 전체 검색 ↗</a>`;
+
+      searchResults.innerHTML = html;
+      searchResults.classList.add("open");
+
+      searchResults.querySelectorAll(".search-item").forEach((el) => {
+        el.onclick = () => {
+          const hit = hits[Number(el.dataset.hit)];
+          if (hit.idx >= 0) {
+            customVerse = null;
+            currentIndex = hit.idx;
+          } else {
+            customVerse = { ref: hit.ref, text: hit.text };
+          }
+          searchResults.classList.remove("open");
+          searchInput.value = "";
+          render();
+        };
+      });
+    });
+
     document.getElementById("prevBtn").onclick = () => {
+      customVerse = null;
       if (currentIndex > 0) { currentIndex--; render(); }
+      else { render(); }
     };
     document.getElementById("nextBtn").onclick = () => {
+      customVerse = null;
       if (currentIndex < VERSES.length - 1) { currentIndex++; render(); }
+      else { render(); }
     };
     document.getElementById("copyBtn").onclick = async () => {
-      const v = VERSES[currentIndex];
+      const v = customVerse || VERSES[currentIndex];
       const textToCopy = `${v.text} (${v.ref})`;
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -284,8 +401,10 @@
       }
     };
     memoInput.oninput = () => {
+      const v = customVerse || VERSES[currentIndex];
+      const memoKey = customVerse ? `verse_memo_ref_${v.ref}` : `verse_memo_${currentIndex}`;
       try {
-        localStorage.setItem(`verse_memo_${currentIndex}`, memoInput.value);
+        localStorage.setItem(memoKey, memoInput.value);
       } catch (e) {}
     };
     themeBtn.onclick = () => {
