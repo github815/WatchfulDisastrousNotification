@@ -1279,7 +1279,7 @@
 
       verseText.textContent = `“${v.text}”`;
       verseRef.textContent = `${v.ref} (개역개정)`;
-      verseEn.textContent = v.en ? `“${v.en}”` : "";
+      verseEn.textContent = v.en || "";
       dateLabel.textContent = customVerse ? "검색 결과" : fmtDate(d);
       dayBadge.textContent = customVerse ? "바로 보기" : `Day ${currentIndex + 1}`;
       progressText.textContent = `${currentIndex + 1} / 7,957절`;
