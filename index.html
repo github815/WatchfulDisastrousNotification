@@ -128,6 +128,13 @@
       font-weight: 600;
       color: var(--accent);
     }
+    .verse-en {
+      font-family: Georgia, "Noto Serif KR", serif;
+      font-size: 16px;
+      line-height: 1.72;
+      color: var(--muted);
+      margin: 0;
+    }
     .progress-wrap {
       margin-top: 22px;
       padding-top: 18px;
@@ -252,6 +259,98 @@
     }
     button.ctrl:active { opacity: 0.7; }
     button.ctrl.wide { grid-column: 1 / -1; }
+    /* ===== 🔊 발음 듣기 ===== */
+    .speak-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    button.speak-btn {
+      flex: 1 1 150px;
+      min-height: 46px;
+      padding: 11px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--accent);
+      background: rgba(214, 184, 124, 0.12);
+      color: var(--accent);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    body.light button.speak-btn { background: rgba(156, 116, 43, 0.08); }
+    button.speak-btn.playing { background: var(--accent); color: #11151c; }
+    button.speak-btn:active { opacity: 0.75; }
+    .speed-group { display: flex; gap: 6px; flex: 0 0 auto; }
+    button.speed-btn {
+      min-height: 46px;
+      padding: 0 13px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    button.speed-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(214, 184, 124, 0.1);
+    }
+    button.speed-btn:active { opacity: 0.7; }
+    .ex-row { display: flex; align-items: flex-start; gap: 10px; }
+    .ex-row .ex-en { flex: 1 1 auto; margin-bottom: 0; }
+    button.speak-mini {
+      flex: 0 0 auto;
+      width: 32px;
+      height: 32px;
+      min-height: 32px;
+      margin-top: -3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    button.speak-mini.playing {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(214, 184, 124, 0.14);
+    }
+    button.speak-mini:active { opacity: 0.7; }
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(env(safe-area-inset-bottom, 16px) + 20px);
+      transform: translate(-50%, 12px);
+      max-width: min(440px, calc(100% - 32px));
+      background: #242c3a;
+      color: #f4f1ea;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 99;
+    }
+    #toast.show { opacity: 1; transform: translate(-50%, 0); }
+    body.light #toast { background: #ffffff; color: #1c1e22; }
     .memo-box {
       background: var(--card);
       border: 1px solid var(--border);
@@ -348,6 +447,21 @@
         </div>
         <p class="verse-text" id="verseText"></p>
         <div class="verse-ref" id="verseRef"></div>
+
+        <div class="block">
+          <div class="label">ENGLISH · NIV</div>
+          <p class="verse-en" id="verseEn"></p>
+        </div>
+
+        <div class="speak-row">
+          <button class="speak-btn" id="verseKoBtn" data-speak-idle="🔊 한국어 듣기" aria-pressed="false">🔊 한국어 듣기</button>
+          <button class="speak-btn" id="verseEnBtn" data-speak-idle="🔊 영어 듣기" aria-pressed="false">🔊 영어 듣기</button>
+          <div class="speed-group" role="group" aria-label="재생 속도">
+            <button class="speed-btn active" data-rate="1" aria-pressed="true">1.0x</button>
+            <button class="speed-btn" data-rate="0.75" aria-pressed="false">0.75x</button>
+          </div>
+        </div>
+
         <div class="progress-wrap">
           <div class="progress-meta">
             <span>신약 통독 진행률</span>
@@ -380,6 +494,14 @@
         <div class="label">오늘의 표현</div>
         <p class="phrase" id="enPhrase"></p>
         <p class="meaning" id="enMeaning"></p>
+
+        <div class="speak-row">
+          <button class="speak-btn" id="enSpeakBtn" data-speak-idle="🔊 발음 듣기" aria-pressed="false">🔊 발음 듣기</button>
+          <div class="speed-group" role="group" aria-label="재생 속도">
+            <button class="speed-btn active" data-rate="1" aria-pressed="true">1.0x</button>
+            <button class="speed-btn" data-rate="0.75" aria-pressed="false">0.75x 천천히</button>
+          </div>
+        </div>
 
         <div class="block">
           <div class="label">이럴 때 씁니다</div>
@@ -419,6 +541,13 @@
         <div class="block">
           <div class="label">핵심 가사 발췌</div>
           <p class="lyrics" id="songLyrics"></p>
+          <div class="speak-row">
+            <button class="speak-btn" id="songSpeakBtn" data-speak-idle="🔊 가사 듣기" aria-pressed="false">🔊 가사 듣기</button>
+            <div class="speed-group" role="group" aria-label="재생 속도">
+              <button class="speed-btn active" data-rate="1" aria-pressed="true">1.0x</button>
+              <button class="speed-btn" data-rate="0.75" aria-pressed="false">0.75x 천천히</button>
+            </div>
+          </div>
         </div>
 
         <div class="block">
@@ -489,6 +618,52 @@
       { ref: "히브리서 11:1", text: "믿음은 바라는 것들의 실상이요 보이지 않는 것들의 증거니" },
       { ref: "야고보서 1:5", text: "너희 중에 누구든지 지혜가 부족하거든 모든 사람에게 후히 주시고 꾸짖지 아니하시는 하나님께 구하라 그리하면 주시리라" }
     ];
+
+    /* ===================== 📖 영어 본문 (NIV) ===================== */
+    const VERSE_EN = {
+      "마태복음 1:1": "This is the genealogy of Jesus the Messiah the son of David, the son of Abraham:",
+      "마태복음 1:2": "Abraham was the father of Isaac, and Isaac the father of Jacob, and Jacob the father of Judah and his brothers,",
+      "마태복음 1:3": "and Judah the father of Perez and Zerah, whose mother was Tamar, Perez the father of Hezron, Hezron the father of Ram,",
+      "마태복음 1:4": "Ram the father of Amminadab, Amminadab the father of Nahshon, and Nahshon the father of Salmon,",
+      "마태복음 1:5": "Salmon the father of Boaz, whose mother was Rahab, Boaz the father of Obed, whose mother was Ruth, and Obed the father of Jesse,",
+      "마태복음 1:6": "and Jesse the father of King David. David was the father of Solomon, whose mother had been Uriah's wife,",
+      "마태복음 1:7": "Solomon the father of Rehoboam, Rehoboam the father of Abijah, and Abijah the father of Asa,",
+      "마태복음 1:8": "Asa the father of Jehoshaphat, Jehoshaphat the father of Jehoram, and Jehoram the father of Uzziah,",
+      "마태복음 1:9": "Uzziah the father of Jotham, Jotham the father of Ahaz, and Ahaz the father of Hezekiah,",
+      "마태복음 1:10": "Hezekiah the father of Manasseh, Manasseh the father of Amon, and Amon the father of Josiah,",
+      "마태복음 1:11": "and Josiah the father of Jeconiah and his brothers at the time of the exile to Babylon.",
+      "마태복음 1:12": "After the exile to Babylon: Jeconiah was the father of Shealtiel, and Shealtiel the father of Zerubbabel,",
+      "마태복음 1:13": "Zerubbabel the father of Abihud, Abihud the father of Eliakim, and Eliakim the father of Azor,",
+      "마태복음 1:14": "Azor the father of Zadok, Zadok the father of Akim, and Akim the father of Elihud,",
+      "마태복음 1:15": "Elihud the father of Eleazar, Eleazar the father of Matthan, and Matthan the father of Jacob,",
+      "마태복음 1:16": "and Jacob the father of Joseph, the husband of Mary, and Mary was the mother of Jesus who is called the Messiah.",
+      "마태복음 1:17": "Thus there were fourteen generations in all from Abraham to David, fourteen from David to the exile to Babylon, and fourteen from the exile to the Messiah.",
+      "마태복음 1:18": "This is how the birth of Jesus the Messiah came about: His mother Mary was pledged to be married to Joseph, but before they came together, she was found to be pregnant through the Holy Spirit.",
+      "마태복음 1:19": "Because Joseph her husband was faithful to the law, and yet did not want to expose her to public disgrace, he had in mind to divorce her quietly.",
+      "마태복음 1:20": "But after he had considered this, an angel of the Lord appeared to him in a dream and said, “Joseph son of David, do not be afraid to take Mary home as your wife, because what is conceived in her is from the Holy Spirit.",
+      "마태복음 1:21": "She will give birth to a son, and you are to give him the name Jesus, because he will save his people from their sins.”",
+      "마태복음 1:22": "All this took place to fulfill what the Lord had said through the prophet:",
+      "마태복음 1:23": "“The virgin will conceive and give birth to a son, and they will call him Immanuel” (which means “God with us”).",
+      "마태복음 1:24": "When Joseph woke up, he did what the angel of the Lord had commanded him and took Mary home as his wife.",
+      "마태복음 1:25": "But he did not consummate their marriage until she gave birth to a son. And he gave him the name Jesus.",
+      "마태복음 5:3": "Blessed are the poor in spirit, for theirs is the kingdom of heaven.",
+      "마태복음 6:33": "But seek first his kingdom and his righteousness, and all these things will be given to you as well.",
+      "마태복음 7:7": "Ask and it will be given to you; seek and you will find; knock and the door will be opened to you.",
+      "마태복음 11:28": "Come to me, all you who are weary and burdened, and I will give you rest.",
+      "요한복음 3:16": "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",
+      "요한복음 14:27": "Peace I leave with you; my peace I give you. I do not give to you as the world gives. Do not let your hearts be troubled and do not be afraid.",
+      "로마서 8:28": "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.",
+      "고린도전서 13:4": "Love is patient, love is kind. It does not envy, it does not boast, it is not proud.",
+      "고린도전서 13:13": "And now these three remain: faith, hope and love. But the greatest of these is love.",
+      "갈라디아서 5:22": "But the fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness,",
+      "빌립보서 4:6-7": "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God. And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus.",
+      "빌립보서 4:13": "I can do all this through him who gives me strength.",
+      "데살로니가전서 5:16-18": "Rejoice always, pray continually, give thanks in all circumstances; for this is God's will for you in Christ Jesus.",
+      "히브리서 11:1": "Now faith is confidence in what we hope for and assurance about what we do not see.",
+      "야고보서 1:5": "If any of you lacks wisdom, you should ask God, who gives generously to all without finding fault, and it will be given to you."
+    };
+    VERSES.forEach((v) => { v.en = VERSE_EN[v.ref] || ""; });
+    POPULAR_VERSES.forEach((v) => { v.en = VERSE_EN[v.ref] || ""; });
 
     /* ===================== 🗣️ 생활영어 데이터 ===================== */
     /* Day 1 = 2026-11-22 */
@@ -914,6 +1089,150 @@
       }
     }
 
+    /* ===================== 🔊 듣기 (TTS: 한국어 / 원어민 영어) ===================== */
+    const speechSupported =
+      typeof window !== "undefined" &&
+      "speechSynthesis" in window &&
+      typeof window.SpeechSynthesisUtterance === "function";
+
+    const PREFERRED_VOICES = {
+      "en-US": ["samantha", "aaron", "ava", "nicky", "allison", "susan", "google us english", "google us"],
+      "ko-KR": ["yuna", "sora", "kyuri", "sujin", "google 한국의", "google korean"]
+    };
+    const voiceCache = { "en-US": [], "ko-KR": [] };
+
+    function refreshVoices() {
+      if (!speechSupported) return;
+      const all = window.speechSynthesis.getVoices() || [];
+      const byLang = (re) => all.filter((v) => re.test(v.lang || ""));
+      voiceCache["en-US"] = byLang(/en[-_]US/i);
+      if (!voiceCache["en-US"].length) voiceCache["en-US"] = byLang(/^en/i);
+      voiceCache["ko-KR"] = byLang(/ko[-_]KR/i);
+      if (!voiceCache["ko-KR"].length) voiceCache["ko-KR"] = byLang(/^ko/i);
+    }
+    if (speechSupported) {
+      refreshVoices();
+      if (typeof window.speechSynthesis.addEventListener === "function") {
+        window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
+      } else {
+        window.speechSynthesis.onvoiceschanged = refreshVoices;
+      }
+    }
+
+    function pickVoice(lang) {
+      const key = /^ko/i.test(lang) ? "ko-KR" : "en-US";
+      if (!voiceCache[key].length) refreshVoices();
+      const list = voiceCache[key];
+      if (!list.length) return null;
+      for (const name of PREFERRED_VOICES[key]) {
+        const hit = list.find((v) => (v.name || "").toLowerCase().includes(name));
+        if (hit) return hit;
+      }
+      return list.find((v) => v.localService) || list[0];
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      let el = document.getElementById("toast");
+      if (!el) {
+        el = document.createElement("div");
+        el.id = "toast";
+        el.setAttribute("role", "status");
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 3200);
+    }
+
+    const speechState = { btn: null, text: "", lang: "en-US", rate: 1 };
+    let warnedNoVoice = false;
+
+    function syncSpeakButtons() {
+      document.querySelectorAll("[data-speak-idle]").forEach((b) => {
+        const on = b === speechState.btn;
+        b.textContent = on ? (b.getAttribute("data-speak-stop") || "⏹ 멈춤") : b.getAttribute("data-speak-idle");
+        b.classList.toggle("playing", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+
+    function syncSpeedButtons() {
+      document.querySelectorAll("button.speed-btn").forEach((b) => {
+        const on = Number(b.dataset.rate) === speechState.rate;
+        b.classList.toggle("active", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+
+    function stopSpeech() {
+      speechState.btn = null;
+      speechState.text = "";
+      if (speechSupported) {
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+      }
+      syncSpeakButtons();
+    }
+
+    function speakText(text, btn, lang) {
+      if (!text) return;
+      lang = lang || "en-US";
+      if (!speechSupported) {
+        showToast("이 브라우저는 듣기 기능을 지원하지 않아요. iPhone은 설정 › 손쉬운 사용 › 콘텐츠 말하기에서 음성을 켜 주세요.");
+        return;
+      }
+      if (speechState.btn === btn) {
+        stopSpeech();
+        return;
+      }
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+
+      const u = new window.SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      const voice = pickVoice(lang);
+      if (voice) u.voice = voice;
+      u.rate = speechState.rate;
+      u.pitch = 1;
+      u.volume = 1;
+      u.onend = () => { if (speechState.btn === btn) stopSpeech(); };
+      u.onerror = () => { if (speechState.btn === btn) stopSpeech(); };
+
+      speechState.btn = btn;
+      speechState.text = text;
+      speechState.lang = lang;
+      try { window.speechSynthesis.resume(); } catch (e) {}
+      window.speechSynthesis.speak(u);
+      syncSpeakButtons();
+
+      if (!voice && !warnedNoVoice) {
+        warnedNoVoice = true;
+        showToast(lang.indexOf("ko") === 0 ? "한국어 음성을 찾지 못해 기본 음성으로 재생합니다." : "원어민 영어 음성을 찾지 못해 기본 음성으로 재생합니다.");
+      }
+    }
+
+    function setSpeechRate(rate) {
+      speechState.rate = rate;
+      syncSpeedButtons();
+      if (speechState.btn && speechState.text && speechSupported) {
+        const btn = speechState.btn;
+        const text = speechState.text;
+        const lang = speechState.lang;
+        speechState.btn = null;
+        speechState.text = "";
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+        speakText(text, btn, lang);
+      }
+    }
+
+    document.querySelectorAll("button.speed-btn").forEach((b) => {
+      b.onclick = () => setSpeechRate(Number(b.dataset.rate));
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopSpeech();
+    });
+
     /* ===================== 탭 ===================== */
     const tabButtons = Array.from(document.querySelectorAll(".tab"));
     const panels = {
@@ -928,6 +1247,7 @@
         b.setAttribute("aria-selected", on ? "true" : "false");
       });
       Object.keys(panels).forEach((k) => panels[k].classList.toggle("active", k === name));
+      stopSpeech();
       window.scrollTo(0, 0);
     }
     tabButtons.forEach((b) => {
@@ -941,6 +1261,7 @@
 
     const verseText = document.getElementById("verseText");
     const verseRef = document.getElementById("verseRef");
+    const verseEn = document.getElementById("verseEn");
     const dateLabel = document.getElementById("dateLabel");
     const dayBadge = document.getElementById("dayBadge");
     const progressText = document.getElementById("progressText");
@@ -952,11 +1273,13 @@
     const copyBtn = document.getElementById("copyBtn");
 
     function render() {
+      stopSpeech();
       const v = customVerse || VERSES[currentIndex];
       const d = new Date(START_DATE.getTime() + currentIndex * 86400000);
 
       verseText.textContent = `“${v.text}”`;
       verseRef.textContent = `${v.ref} (개역개정)`;
+      verseEn.textContent = v.en ? `“${v.en}”` : "";
       dateLabel.textContent = customVerse ? "검색 결과" : fmtDate(d);
       dayBadge.textContent = customVerse ? "바로 보기" : `Day ${currentIndex + 1}`;
       progressText.textContent = `${currentIndex + 1} / 7,957절`;
@@ -1004,7 +1327,7 @@
             customVerse = null;
             currentIndex = hit.idx;
           } else {
-            customVerse = { ref: hit.ref, text: hit.text };
+            customVerse = { ref: hit.ref, text: hit.text, en: hit.en };
           }
           searchResults.classList.remove("open");
           searchInput.value = "";
@@ -1032,6 +1355,17 @@
       const v = customVerse || VERSES[currentIndex];
       copyText(`${v.text} (${v.ref})`, copyBtn, "구절 복사");
     };
+
+    const verseKoBtn = document.getElementById("verseKoBtn");
+    const verseEnBtn = document.getElementById("verseEnBtn");
+    verseKoBtn.onclick = () => {
+      const v = customVerse || VERSES[currentIndex];
+      speakText(v.text, verseKoBtn, "ko-KR");
+    };
+    verseEnBtn.onclick = () => {
+      const v = customVerse || VERSES[currentIndex];
+      speakText(v.en, verseEnBtn, "en-US");
+    };
     memoInput.oninput = () => {
       const v = customVerse || VERSES[currentIndex];
       const memoKey = customVerse ? `verse_memo_ref_${v.ref}` : `verse_memo_${currentIndex}`;
@@ -1058,6 +1392,7 @@
     const enCopyBtn = document.getElementById("enCopyBtn");
 
     function renderEnglish() {
+      stopSpeech();
       const p = PHRASES[enIndex];
       const d = new Date(EN_START.getTime() + enIndex * 86400000);
       enDate.textContent = fmtDate(d);
@@ -1067,9 +1402,25 @@
       enWhen.textContent = p.when;
       enNuance.textContent = p.nuance;
       enExamples.innerHTML = p.examples
-        .map((ex) => `<li><span class="ex-en">${ex.en}</span><span class="ex-ko">${ex.ko}</span></li>`)
+        .map((ex, i) => `<li>
+          <div class="ex-row">
+            <span class="ex-en">${ex.en}</span>
+            <button class="speak-mini" data-ex="${i}" data-speak-idle="🔊" data-speak-stop="⏹" aria-label="예문 ${i + 1} 원어민 발음 듣기" aria-pressed="false">🔊</button>
+          </div>
+          <span class="ex-ko">${ex.ko}</span>
+        </li>`)
         .join("");
     }
+
+    const enSpeakBtn = document.getElementById("enSpeakBtn");
+    enSpeakBtn.onclick = () => speakText(PHRASES[enIndex].phrase, enSpeakBtn, "en-US");
+    enExamples.addEventListener("click", (e) => {
+      const btn = e.target.closest("button.speak-mini");
+      if (!btn) return;
+      const p = PHRASES[enIndex];
+      const ex = p && p.examples[Number(btn.dataset.ex)];
+      if (ex) speakText(ex.en, btn, "en-US");
+    });
 
     document.getElementById("enPrevBtn").onclick = () => {
       if (enIndex > 0) enIndex--;
@@ -1105,6 +1456,7 @@
     const songCopyBtn = document.getElementById("songCopyBtn");
 
     function renderSong() {
+      stopSpeech();
       const s = SONGS[songIndex];
       const d = new Date(EN_START.getTime() + songIndex * 86400000);
       songDate.textContent = fmtDate(d);
@@ -1145,10 +1497,27 @@
       copyText(text, songCopyBtn, "가사 복사");
     };
 
+    const songSpeakBtn = document.getElementById("songSpeakBtn");
+    function songSpeechText(s) {
+      const lines = s.lines.map((l) => l.trim()).filter((l) => l && l !== "...");
+      let out = "";
+      lines.forEach((l, i) => {
+        if (i === 0) { out = l; return; }
+        out += (/[.!?]$/.test(lines[i - 1]) ? " " : ". ") + l;
+      });
+      return out;
+    }
+    songSpeakBtn.onclick = () => {
+      const s = SONGS[songIndex];
+      speakText(songSpeechText(s), songSpeakBtn, "en-US");
+    };
+
     /* ===================== 시작 ===================== */
     render();
     renderEnglish();
     renderSong();
+    syncSpeakButtons();
+    syncSpeedButtons();
     showTab("bible");
   </script>
 </body>
