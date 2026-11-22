@@ -928,7 +928,6 @@
         b.setAttribute("aria-selected", on ? "true" : "false");
       });
       Object.keys(panels).forEach((k) => panels[k].classList.toggle("active", k === name));
-      try { localStorage.setItem("active_tab", name); } catch (e) {}
       window.scrollTo(0, 0);
     }
     tabButtons.forEach((b) => {
@@ -1150,11 +1149,7 @@
     render();
     renderEnglish();
     renderSong();
-
-    try {
-      const saved = localStorage.getItem("active_tab");
-      if (saved && panels[saved]) showTab(saved);
-    } catch (e) {}
+    showTab("bible");
   </script>
 </body>
 </html>
