@@ -1415,7 +1415,26 @@
           }
         }
       }
-      if (!best) return null;
+      if (!best) {
+        // 책 이름 일부만 입력한 경우 (예: "고린도 13:4", "데살로니가 5:16")
+        const headMatch = /^[^\d:;,.]+/.exec(s);
+        const head = headMatch ? headMatch[0].trim() : "";
+        const headKey = normKey(head);
+        if (headKey) {
+          let partial = null;
+          for (const b of bible.index.books) {
+            const names = [b.ko, b.en].concat(b.abbr || [], b.abbrEn || []);
+            for (const name of names) {
+              const key = normKey(name);
+              if (key.length > headKey.length && key.startsWith(headKey)) {
+                if (!partial || b.id < partial.id) partial = b;
+              }
+            }
+          }
+          if (partial) return { book: partial, rest: s.slice(head.length) };
+        }
+        return null;
+      }
       let consumed = 0, i = 0;
       while (i < s.length && consumed < best.keyLen) {
         if (!/\s/.test(s[i])) consumed++;
@@ -1686,6 +1705,7 @@
 
       st.hint = hint;
       st.status = "본문 불러오는 중...";
+      st.terms = [];
       renderSearchPanel();
 
       let chapters;
