@@ -630,6 +630,12 @@
   </main>
 
   <script>
+    /* 화면에 드러나지 않는 오류 수집기 (검증·디버깅용) */
+    window.__appErrors = [];
+    window.addEventListener("error", (e) => window.__appErrors.push(String(e.message || (e.error && e.error.message) || e.type)));
+    window.addEventListener("unhandledrejection", (e) => window.__appErrors.push("promise: " + String((e.reason && e.reason.message) || e.reason)));
+  </script>
+  <script>
     /* ===================== 📖 말씀 데이터 ===================== */
     const START_DATE = new Date("2026-11-21T00:00:00+09:00");
     const VERSES = [
