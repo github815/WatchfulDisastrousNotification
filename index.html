@@ -1897,6 +1897,17 @@
       searchState.timer = setTimeout(() => { runSearch(value); }, 220);
     });
 
+    searchInput.addEventListener("focus", () => {
+      const v = searchInput.value.trim();
+      if (!v) return;
+      if (searchState.q === v) {
+        if (searchState.hits.length || searchState.hint) renderSearchPanel();
+      } else {
+        clearTimeout(searchState.timer);
+        runSearch(v);
+      }
+    });
+
     searchInput.addEventListener("keydown", (e) => {
       if (e.key !== "Enter") return;
       e.preventDefault();
